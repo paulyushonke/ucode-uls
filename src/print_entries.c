@@ -7,6 +7,13 @@ static ushort terwidth = 0;
 static t_time_type timetype;
 static bool totnum = false;
 
+static bool PermissionDenied = false;
+
+void mx_printerrn(const char *s, int n) {
+    int s_len = mx_strlen(s);
+	write(2, s, n > s_len ? s_len : n);
+}
+
 void mx_free_dirs(t_files_dirs *files_dirs) {
     mx_clear_list(&files_dirs->files_list);
     mx_clear_list(&files_dirs->dirs_list);
@@ -125,6 +132,22 @@ static void print_entries(t_list *entries_list, bool print_newline_in_the_end) {
 static void mx_print_dir_rec(t_entry *directory, bool print_dir_name, bool print_newline_in_the_beginning) {
     mx_printchar_if_con(print_newline_in_the_beginning, '\n');
     mx_print_two_strings_if(print_dir_name, directory->relative_path, ":\n");
+    if (directory->no_permission) {
+        char *path = directory->relative_path;
+        size_t last_char_index_of_name = mx_strlen(path) - 1;
+        for ( ; path[last_char_index_of_name] == '/' ; last_char_index_of_name--) { }
+        int first_char_index_of_name = last_char_index_of_name;
+        for ( ; path[first_char_index_of_name] != '/' && first_char_index_of_name != -1; first_char_index_of_name--) { }
+        first_char_index_of_name++;
+
+        mx_printerr("uls");
+        mx_printerr(": ");
+        mx_printerrn(path + first_char_index_of_name, last_char_index_of_name - first_char_index_of_name + 1);
+        mx_printerr(": ");
+        mx_printerr("Permission denied\n");
+        PermissionDenied = true;
+        return;
+    }
     totnum = true;
     print_entries(directory->entries_list, false);
 
@@ -177,11 +200,28 @@ void mx_print_files_dirs(t_list *entries_list, t_flags *flags, c_size_t invalid_
             for (t_list *i = files_dirs.dirs_list; i != NULL; i = i->next) {
                 t_entry *directory = (t_entry *)i->data;
                 mx_print_two_strings_if(files_dirs.total_entries_count + invalid_paths_to_entries_count > 1, directory->relative_path, ":\n");
+                if (directory->no_permission) {
+                    char *path = directory->relative_path;
+                    size_t last_char_index_of_name = mx_strlen(path) - 1;
+                    for ( ; path[last_char_index_of_name] == '/' ; last_char_index_of_name--) { }
+                    int first_char_index_of_name = last_char_index_of_name;
+                    for ( ; path[first_char_index_of_name] != '/' && first_char_index_of_name != -1; first_char_index_of_name--) { }
+                    first_char_index_of_name++;
+
+                    mx_printerr("uls");
+                    mx_printerr(": ");
+                    mx_printerrn(path + first_char_index_of_name, last_char_index_of_name - first_char_index_of_name + 1);
+                    mx_printerr(": ");
+                    mx_printerr("Permission denied\n");
+                    PermissionDenied = true;
+                    mx_printstr_if(i->next != NULL, "\n");
+                    continue;
+                }
                 totnum = true;
 
-                if (directory->entries_list == NULL && i->next != NULL ) {
-                    mx_printchar('\n');  
-               }
+            //     if (directory->entries_list == NULL && i->next != NULL ) {
+            //         mx_printchar('\n');  
+            //    }
                 print_entries(directory->entries_list, i->next != NULL);   
             }
         }

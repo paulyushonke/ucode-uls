@@ -29,9 +29,9 @@ t_list *mx_find_entries_list(t_list *all_inputted_paths_to_entries_list, t_list 
         t_entry *entry = (t_entry *)i->data;
         if (!S_ISDIR(entry->stat.st_mode) && (!S_ISLNK(entry->stat.st_mode) || (flags->l || flags->o || flags->g))) continue;
         if (flags->R) {
-            entry->entries_list = mx_get_entr_dir_rec(*entry, to_find_entr_flgs(flags));
+            entry->entries_list = mx_get_entr_dir_rec(entry, to_find_entr_flgs(flags));
         } else {
-            entry->entries_list = mx_get_entr_dir(*entry, to_find_entr_flgs(flags));
+            entry->entries_list = mx_get_entr_dir(entry, to_find_entr_flgs(flags));
         }
     }
 

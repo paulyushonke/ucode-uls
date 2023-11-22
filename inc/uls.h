@@ -73,6 +73,7 @@ typedef struct s_entry {
     struct dirent *dirent;
     struct stat stat;
     t_list *entries_list;
+    bool no_permission;
 } t_entry;
 
 typedef struct s_files_dirs {
@@ -167,8 +168,8 @@ t_files_dirs mx_separate_entries(t_list *, c_bool follow_link);
 t_args_error mx_validate_args(c_args_ptr args, c_str ext_flag);
 t_list *mx_find_entries_list(t_list *, t_list *, t_flags *);
 t_flags mx_create_flags(char *);
-t_list *mx_get_entr_dir(t_entry directory, t_find_entries_flags find_entries_flags);
-t_list *mx_get_entr_dir_rec(t_entry directory, t_find_entries_flags find_entries_flags);
+t_list *mx_get_entr_dir(t_entry *directory, t_find_entries_flags find_entries_flags);
+t_list *mx_get_entr_dir_rec(t_entry *directory, t_find_entries_flags find_entries_flags);
 t_entry *mx_create_entry_ptr(char *);
 t_args mx_convert_to_args(c_int argc, c_str_arr argv);
 t_args mx_create_args(void);
